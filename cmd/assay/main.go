@@ -525,7 +525,7 @@ func fetchHistoryFromServer(ctx context.Context, serverURL, asset string) ([]his
 	if err != nil {
 		return nil, fmt.Errorf("history: request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
@@ -538,14 +538,14 @@ func fetchHistoryFromServer(ctx context.Context, serverURL, asset string) ([]his
 		Reason       string `json:"reason,omitempty"`
 		Count        int    `json:"count"`
 		Observations []struct {
-			Asset      string    `json:"asset"`
-			At         time.Time `json:"at"`
-			Mechanics  int       `json:"mechanics"`
-			BaseSeverity string  `json:"base_severity"`
-			Severity   string    `json:"severity"`
-			Undetermined bool    `json:"undetermined"`
-			UndeterminedChecks []string `json:"undetermined_checks"`
-			Reason     string    `json:"reason,omitempty"`
+			Asset              string    `json:"asset"`
+			At                 time.Time `json:"at"`
+			Mechanics          int       `json:"mechanics"`
+			BaseSeverity       string    `json:"base_severity"`
+			Severity           string    `json:"severity"`
+			Undetermined       bool      `json:"undetermined"`
+			UndeterminedChecks []string  `json:"undetermined_checks"`
+			Reason             string    `json:"reason,omitempty"`
 		} `json:"observations"`
 		Transitions []struct {
 			State          string   `json:"state"`

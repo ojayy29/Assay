@@ -141,9 +141,8 @@ func (s *Server) Handler() http.Handler {
 		limiter = NewRateLimiter(defaultExposureBurst, defaultExposureRate)
 	}
 	// Events limiter bounds concurrent SSE connections.
-	eventsLimiter := s.EventsLimiter
-	if eventsLimiter == nil {
-		eventsLimiter = NewEventsLimiter(defaultEventsMaxClients)
+	if s.EventsLimiter == nil {
+		s.EventsLimiter = NewEventsLimiter(defaultEventsMaxClients)
 	}
 	s.eventsClients = make(map[chan []byte]struct{})
 
@@ -222,9 +221,9 @@ const (
 
 // eventMessage is the JSON structure sent over SSE.
 type eventMessage struct {
-	Asset      string          `json:"asset"`
+	Asset      string              `json:"asset"`
 	Transition temporal.Transition `json:"transition"`
-	Timestamp  time.Time       `json:"timestamp"`
+	Timestamp  time.Time           `json:"timestamp"`
 }
 
 func (s *Server) handleScan(w http.ResponseWriter, r *http.Request) {

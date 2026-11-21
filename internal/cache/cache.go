@@ -62,10 +62,10 @@ func WithClock(now func() time.Time) Option {
 type Cache[T any] struct {
 	ttl time.Duration
 
-	mu       sync.Mutex
-	entries  map[string]Entry[T]
-	flights  map[string]*flight[T]
-	now      func() time.Time
+	mu      sync.Mutex
+	entries map[string]Entry[T]
+	flights map[string]*flight[T]
+	now     func() time.Time
 }
 
 type flight[T any] struct {

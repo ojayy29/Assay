@@ -3,6 +3,7 @@ package api_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -28,7 +29,8 @@ func (f *threadSafeRecorder) Flush() {}
 func (f *threadSafeRecorder) Write(p []byte) (int, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.ResponseRecorder.Write(p)
+	n, err := f.ResponseRecorder.Write(p)
+	return n, fmt.Errorf("write: %w", err)
 }
 
 func (f *threadSafeRecorder) WriteHeader(statusCode int) {
@@ -40,13 +42,13 @@ func (f *threadSafeRecorder) WriteHeader(statusCode int) {
 func (f *threadSafeRecorder) BodyString() string {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.ResponseRecorder.Body.String()
+	return f.Body.String()
 }
 
 func (f *threadSafeRecorder) StatusCode() int {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.ResponseRecorder.Code
+	return f.Code
 }
 
 func newThreadSafeRecorder() *threadSafeRecorder {
@@ -191,11 +193,11 @@ func TestEventsStreamDeliversTransition(t *testing.T) {
 
 	// Append second observation (should produce a transition).
 	secondObs := temporal.Observation{
-		Asset:         mechanics.Asset{Code: testCode, Issuer: testIssuer},
-		At:            time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC),
-		Mechanics:     mechanics.MechClawbackEnabled,
-		Base:          mechanics.High,
-		Severity:      mechanics.High,
+		Asset:          mechanics.Asset{Code: testCode, Issuer: testIssuer},
+		At:             time.Date(2026, 1, 2, 12, 0, 0, 0, time.UTC),
+		Mechanics:      mechanics.MechClawbackEnabled,
+		Base:           mechanics.High,
+		Severity:       mechanics.High,
 		Accountability: mechanics.AccountabilityVerified,
 	}
 	if err := srv.History.Append(secondObs); err != nil {
@@ -241,9 +243,9 @@ func TestEventsStreamDeliversTransition(t *testing.T) {
 	}
 
 	var msg struct {
-		Asset      string          `json:"asset"`
+		Asset      string              `json:"asset"`
 		Transition temporal.Transition `json:"transition"`
-		Timestamp  time.Time       `json:"timestamp"`
+		Timestamp  time.Time           `json:"timestamp"`
 	}
 	if err := json.Unmarshal([]byte(eventData), &msg); err != nil {
 		t.Fatalf("unmarshal event: %v", err)

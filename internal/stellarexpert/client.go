@@ -426,7 +426,7 @@ func lookup[T stamped](c *cache.Cache[T], key string, opts []LookupOption, fetch
 	})
 	if err != nil {
 		var zero T
-		return zero, false, err
+		return zero, false, fmt.Errorf("lookup: %w", err)
 	}
 	return entry.Value, fromCache, nil
 }
