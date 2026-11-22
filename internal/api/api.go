@@ -56,7 +56,14 @@ type Server struct {
 	// public deployments should configure this to protect upstream services
 	// (Horizon, StellarExpert) from being hammered under Assay's User-Agent.
 	ScanLimiter *RateLimiter
-	Log         *slog.Logger
+	// EventsLimiter bounds concurrent SSE connections for GET /api/v1/events.
+	// When nil, Handler installs a default limiter.
+	EventsLimiter *EventsLimiter
+	// eventsClients holds active SSE client channels.
+	eventsClients map[chan []byte]struct{}
+	// eventsMu protects eventsClients.
+	eventsMu sync.Mutex
+	Log      *slog.Logger
 }
 
 // NewServer returns a Server backed by the production scanner and an in-memory
@@ -184,6 +191,31 @@ const (
 	eventsHeartbeatInterval = 15 * time.Second
 	eventsWriteTimeout      = 10 * time.Second
 )
+
+// EventsLimiter is a simple semaphore for bounding concurrent SSE connections.
+type EventsLimiter struct {
+	sem chan struct{}
+}
+
+// NewEventsLimiter returns a limiter allowing up to max concurrent connections.
+func NewEventsLimiter(max int) *EventsLimiter {
+	return &EventsLimiter{sem: make(chan struct{}, max)}
+}
+
+// Acquire attempts to reserve a connection slot. Returns false if at capacity.
+func (l *EventsLimiter) Acquire() bool {
+	select {
+	case l.sem <- struct{}{}:
+		return true
+	default:
+		return false
+	}
+}
+
+// Release returns a connection slot.
+func (l *EventsLimiter) Release() {
+	<-l.sem
+}
 
 // eventMessage is the JSON structure sent over SSE.
 type eventMessage struct {
