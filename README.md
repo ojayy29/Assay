@@ -97,6 +97,7 @@ Check an attestation, investigate a verdict, audit what Assay claims.
 | [docs/fail-closed.md](docs/fail-closed.md) | Every place a failure could influence the answer, classified as fail-closed or not, with the evidence |
 | [docs/ever-escalated-marker.md](docs/ever-escalated-marker.md) | Design (not implemented): an on-chain record that closes the reputation/attribution threat class |
 | [docs/threat-model.md](docs/threat-model.md) | The actors, what each can do, and which attacks Assay defends against, accepts, or scopes out |
+| [docs/review-scope.md](docs/review-scope.md) | External security review scope: in-scope contract entrypoints, every invariant mapped to its test (or flagged), and what is excluded |
 | [docs/offline-bundle.md](docs/offline-bundle.md) | Archiving the exact source bytes behind an attestation, and verifying them without a network |
 | [docs/eval.md](docs/eval.md) | Labelled trap/legitimate set and current results |
 | [docs/severity-rating-comparison.md](docs/severity-rating-comparison.md) | Dated comparison of Assay severity with StellarExpert's rating for the top-50 fixture and scanned sample |

@@ -50,52 +50,13 @@ type Server struct {
 	// default", never "allow unlimited"; an exposure endpoint without a
 	// bound would be N scans per request with nothing between them.
 	ExposureLimiter *RateLimiter
-	// EventsLimiter bounds the number of concurrent SSE clients. When nil,
-	// Handler installs a default limit.
-	EventsLimiter *EventsLimiter
-	Log           *slog.Logger
-
-	// eventsMu protects the events clients map.
-	eventsMu sync.Mutex
-	// eventsClients is the set of active SSE clients. Each client receives
-	// transition events for all assets.
-	eventsClients map[chan []byte]struct{}
-}
-
-// EventsLimiter bounds the number of concurrent SSE connections.
-type EventsLimiter struct {
-	maxClients int
-	current    int
-	mu         sync.Mutex
-}
-
-// NewEventsLimiter creates a limiter with the given maximum concurrent clients.
-func NewEventsLimiter(maxClients int) *EventsLimiter {
-	if maxClients <= 0 {
-		maxClients = 100 // default cap
-	}
-	return &EventsLimiter{maxClients: maxClients}
-}
-
-// Acquire attempts to register a new client. Returns true if the client is
-// allowed, false if the limit would be exceeded.
-func (l *EventsLimiter) Acquire() bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if l.current >= l.maxClients {
-		return false
-	}
-	l.current++
-	return true
-}
-
-// Release decrements the client count.
-func (l *EventsLimiter) Release() {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	if l.current > 0 {
-		l.current--
-	}
+	// ScanLimiter rate-limits GET /api/v1/scan per client address.
+	// When nil, no rate limit is applied — nil means "off", not "default".
+	// The limit is intentionally off by default for local use and development;
+	// public deployments should configure this to protect upstream services
+	// (Horizon, StellarExpert) from being hammered under Assay's User-Agent.
+	ScanLimiter *RateLimiter
+	Log         *slog.Logger
 }
 
 // NewServer returns a Server backed by the production scanner and an in-memory
@@ -150,8 +111,13 @@ func (s *Server) Handler() http.Handler {
 	// the process is up and checks nothing, /readyz asks the upstreams. A
 	// failing probe must never report healthy; a dying process must still be
 	// able to answer /healthz.
+	scanHandler := http.HandlerFunc(s.handleScan)
+	if s.ScanLimiter != nil {
+		scanHandler = s.withScanLimit(s.ScanLimiter, s.handleScan)
+	}
+
 	handlers := map[string]http.HandlerFunc{
-		"GET /api/v1/scan":     s.handleScan,
+		"GET /api/v1/scan":     scanHandler,
 		"GET /api/v1/history":  s.handleHistory,
 		"GET /api/v1/events":   s.handleEvents,
 		"GET /api/v1/exposure": s.withExposureLimit(limiter, s.handleExposure),

@@ -346,6 +346,7 @@ see `docs/integrating.md` for what a consumer reads out of it, and
 ```
 ./assay serve -addr :8080
 ./assay serve -addr :8080 -history /var/lib/assay/history.jsonl
+./assay serve -addr :8080 -scan-rate 10 -scan-burst 20
 ```
 
 Each successful `GET /api/v1/scan` records an observation, and
@@ -354,6 +355,23 @@ derived transitions. `-history` points that store at an append-only JSON Lines
 log so it survives a restart; without it, history is in memory and lost when the
 process exits. The default retention is 256 observations per asset and the
 policy is in [history.md](history.md).
+
+**Rate limiting.** `GET /api/v1/exposure` is always rate-limited (default: 5
+requests burst, 1 per second per client address) because one request fans out
+to a full scan per asset. `GET /api/v1/scan` is **not rate-limited by default**
+so local and development use works without configuration. For public deployments
+set `-scan-rate` and `-scan-burst` to protect the shared Horizon and
+StellarExpert upstreams from being hammered under Assay's User-Agent:
+
+```
+-scan-burst N  initial burst of N scan requests allowed per client address
+               (default: 0, off)
+-scan-rate F   token-bucket refill rate in requests/second per client address
+               (requires -scan-burst; default: 0, off)
+```
+
+A refused scan returns `429 Too Many Requests` with a `Retry-After` header
+giving the number of seconds to wait.
 
 ## assay version
 

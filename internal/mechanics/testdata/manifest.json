@@ -209,6 +209,44 @@
         "https://api.stellar.expert/explorer/directory/blocked-domains/redirect.example",
         "https://api.stellar.expert/explorer/directory/GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA"
       ]
+    },
+    {
+      "fixture": "synthetic-auth-required-gating",
+      "asset": "AQUA-GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+      "label": "legitimate",
+      "base_severity": "low",
+      "severity": "low",
+      "escalated": false,
+      "accountability": "verified",
+      "mechanics": ["auth_required"],
+      "capture_date": "2026-08-10",
+      "notes": "Synthetic fixture exercising auth_required as a gating mechanism (#376). Derived from aqua-clear-verified with auth_required set to true in both asset and account records. The stellar.toml is unchanged, so domain verification still passes and accountability is verified.",
+      "source_urls": [
+        "https://horizon.stellar.org/assets?asset_code=AQUA&asset_issuer=GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "https://horizon.stellar.org/accounts/GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "https://aqua.network/.well-known/stellar.toml",
+        "https://api.stellar.expert/explorer/directory/blocked-domains/aqua.network",
+        "https://api.stellar.expert/explorer/directory/GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA"
+      ]
+    },
+    {
+      "fixture": "synthetic-code-claimed-different-issuer",
+      "asset": "AQUA-GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+      "label": "legitimate",
+      "base_severity": "clear",
+      "severity": "clear",
+      "escalated": false,
+      "accountability": "unverified",
+      "mechanics": ["domain_unverified"],
+      "capture_date": "2026-11-22",
+      "notes": "Synthetic fixture proving the reciprocity rule refuses a code-only match (#379). The issuer's home_domain (impersonation.example) publishes a stellar.toml claiming AQUA under a different issuer. Claims() requires both code AND issuer, so accountability is unverified.",
+      "source_urls": [
+        "https://horizon.stellar.org/assets?asset_code=AQUA&asset_issuer=GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "https://horizon.stellar.org/accounts/GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA",
+        "https://impersonation.example/.well-known/stellar.toml",
+        "https://api.stellar.expert/explorer/directory/blocked-domains/impersonation.example",
+        "https://api.stellar.expert/explorer/directory/GBNZILSTVQZ4R7IKQDGHYGY2QXL5QOFJYQMXPKWRRM5PAV7Y4M67AQUA"
+      ]
     }
   ]
 }

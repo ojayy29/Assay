@@ -113,6 +113,15 @@ matching section — see [CONTRIBUTING.md](CONTRIBUTING.md#changelog).
 
 ## CLI and HTTP API
 
+- **2026-11-21 — bounded history pages, a global store bound, and typed
+  de-escalation.** `/api/v1/history` takes `limit`/`before` and returns
+  `limit` and `next_before`, with the transition at a page boundary still
+  reported; the history store caps retained assets (`max_assets` in every
+  response) so the log file can no longer grow without bound; and a severity
+  fall is a typed `deescalation` naming the evidence source that withdrew its
+  claim ([#388](https://github.com/use-assay/Assay/issues/388),
+  [#389](https://github.com/use-assay/Assay/issues/389),
+  [#390](https://github.com/use-assay/Assay/issues/390)).
 - **2026-10-20 — `assay diff`, offline bundles, verify-all script.** `diff`
   explains what changed between two observations; the offline bundle archives
   the exact source bytes behind an attestation and verifies them without a

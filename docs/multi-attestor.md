@@ -243,8 +243,8 @@ registry offers conservative max/union aggregation, and nothing else.**
 
 This is the second open question in this document, now closed. The comparison
 below is argued against concrete consumers — a vault that accepts several
-collateral assets in one call (the batch read in [#331]), and the example gate
-that admits a deposit only below a severity ceiling ([integrating.md]) — rather
+collateral assets in one call (the batch read in [#331](https://github.com/use-assay/Assay/issues/331)), and the example gate
+that admits a deposit only below a severity ceiling ([integrating.md](integrating.md)) — rather
 than in the abstract.
 
 ### Conservative max/union (offered)
@@ -256,7 +256,7 @@ observers.
 
 - **Admission risk:** low. Danger can be raised, never lowered, which is the
   same rule that already holds for severity inside one report
-  ([threat-model.md] #4). M compromised attestors cannot cause an admission as
+  ([threat-model.md](threat-model.md) #4). M compromised attestors cannot cause an admission as
   long as one honest attestor in the consumer's set is responding: the maximum
   wins. Forcing an admission requires M compromised attestors *and* every
   honest attestor to be non-responding within the window — a strictly stronger
@@ -286,7 +286,7 @@ any difference as Contested with no result.
 - **Consumer complexity:** higher. Consumers must understand agreement
   thresholds, distinguish Contested from Unavailable, and decide which
   attestor set to retry with — two rules instead of one double the surface a
-  consumer can misconfigure ([#330]).
+  consumer can misconfigure ([#330](https://github.com/use-assay/Assay/issues/330)).
 
 ### Why #153's consumer research does not change this
 
